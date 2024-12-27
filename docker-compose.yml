@@ -1,0 +1,12 @@
+version: "3"
+services:
+  short_url:
+    build: .
+    image: short_url:v1.0
+    restart: always
+    working_dir: /app
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    command: python main.py

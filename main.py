@@ -1,13 +1,16 @@
 from app.url_function import check_url_validation, generate_short_url
 from flask import Flask, request, redirect, jsonify
+from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta
+from config.config import BaseConfig
 from deploy.init_db import init_db
+from app import create_app
 import sqlite3
 import logging
 
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = create_app()
 
 @app.route('/url/create', methods=['POST'])
 def create_url():
@@ -45,7 +48,7 @@ def create_url():
         expire_at = expire_at.timestamp()
 
         # save short url to db
-        conn = sqlite3.connect('urls.db')
+        conn = sqlite3.connect(BaseConfig.SQLITE_PATH)
         c = conn.cursor()
         try:
             while True:
@@ -82,7 +85,7 @@ def redirect_url(short_url):
     API 2: Redirect Using Short URL
     method: GET
     """
-    conn = sqlite3.connect('urls.db')
+    conn = sqlite3.connect(BaseConfig.SQLITE_PATH)
     c = conn.cursor()
     # Get original URL from sqlite
     result = c.execute('''

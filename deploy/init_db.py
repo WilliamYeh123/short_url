@@ -1,8 +1,9 @@
 import sqlite3
+from config.config import BaseConfig
 
 # database initialization
 def init_db():
-    conn = sqlite3.connect('urls.db')
+    conn = sqlite3.connect(BaseConfig.SQLITE_PATH)
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS urls (

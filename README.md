@@ -162,4 +162,7 @@ then redirects to the original website
 
 example of expired url:
 
-    
+    {
+        "error": "URL has expired",
+        "expired_at": "Sun, 27 Oct 2024 09:37:19 GMT"
+    }

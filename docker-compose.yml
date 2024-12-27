@@ -1,7 +1,7 @@
 version: "3"
 services:
   short_url:
-    build: .
+    container_name: url-service
     image: short_url:v1.0
     restart: always
     working_dir: /app

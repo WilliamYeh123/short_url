@@ -1,16 +1,11 @@
 from app.url_function import check_url_validation, generate_short_url
 from flask import Flask, request, redirect, jsonify
-from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta
 from config.config import BaseConfig
 from deploy.init_db import init_db
-from app import create_app
 import sqlite3
-import logging
 
-logger = logging.getLogger(__name__)
-
-app = create_app()
+app = Flask(__name__)
 
 @app.route('/url/create', methods=['POST'])
 def create_url():
@@ -52,8 +47,8 @@ def create_url():
         c = conn.cursor()
         try:
             while True:
-                short = generate_short_url()
                 # Check if short_url already exists, if not then save in db
+                short = generate_short_url()
                 existing = c.execute('SELECT short FROM urls WHERE short = ?', (short,)).fetchone()
 
                 if not existing:
@@ -74,7 +69,6 @@ def create_url():
         return jsonify(response_data), 200
 
     except Exception as e:
-        # Log the error here if you have logging configured
         response_data['success'] = False
         response_data['reason'] = str(e) if app.debug else None
         return jsonify(response_data), 500
@@ -110,6 +104,6 @@ def redirect_url(short_url):
 
     return redirect(original_url)
 
+init_db()
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+    app.run(host=BaseConfig.HOST, port=BaseConfig.PORT)

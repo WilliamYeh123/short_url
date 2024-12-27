@@ -23,18 +23,20 @@ def create_url():
     }
     """
     try:
+        response_data = {}
         data = request.json
+        if not isinstance(data, dict):
+            response_data['success'] = False
+            response_data['reason'] = "Bad Request: Request body must be a JSON object"
+            return jsonify(response_data), 400
         original_url = data.get('original_url','')
-        response_data = {
-            'original_url':original_url,
-        }
 
         # check if original_url is in valid format
-        status, message = check_url_validation(original_url)
+        status, message, code = check_url_validation(original_url)
         response_data['success'] = status
         response_data['reason'] = message
         if not status:
-            return jsonify(response_data), 400
+            return jsonify(response_data), code
 
         # define create time and expire time
         create_at = datetime.now()
@@ -63,6 +65,7 @@ def create_url():
             conn.close()
 
         shortened_url = f"{request.host_url}{short}"
+        response_data['original_url'] = original_url
         response_data['short_url'] = shortened_url
         response_data['expiration_date'] = expire_at
 
@@ -97,9 +100,10 @@ def redirect_url(short_url):
 
     # Check if URL has expired
     if expire_str < datetime.now().timestamp():
+        expired_date = datetime.fromtimestamp(expire_str)
         return jsonify({
             'error': 'URL has expired',
-            'expired_at': expire_str
+            'expired_at': expired_date
         }), 410
 
     return redirect(original_url)

@@ -26,22 +26,22 @@ def check_url_validation(url):
     must include http and domain
     """
     if len(url) > 2048:
-        return False, "URL too long (should be under 2048)"
+        return False, "URL too long (should be under 2048)", 413
     if not url:
-        return False, "URL required"
+        return False, "Invalid format: URL required", 422
     if not isinstance(url, str):
-        return False, "URL must be a string"
+        return False, "Invalid format: URL must be a string", 422
 
     try:
         url_parse = urlparse(url)
         if not all([url_parse.scheme, url_parse.netloc]):
-            return False, "Invalid URL format, must include scheme (http:// or https://) and domain"
+            return False, "Invalid format: must include scheme (http:// or https://) and domain", 422
         if url_parse.scheme not in ['http', 'https']:
-            return False, "URL must use http or https protocol"
+            return False, "Invalid format: URL must use http or https protocol", 422
         domain = url_parse.netloc
         if not re.match(r'^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', domain):
-            return False, "Invalid domain format"
+            return False, "Invalid format: Invalid domain format", 422
     except Exception as e:
-        return False, "Invalid URL format"
+        return False, f"Invalid format: {e}", 422
 
-    return True, "Success creating short URL"
+    return True, "Success creating short URL", 200

@@ -10,7 +10,7 @@ This is a project implementing two short_url RESTful HTTP APIs, including a **PO
 * Docker Compose (optional)
 
 ## Setup
-#### Local Setup
+#### Method 1: Local Setup
 Clone the project from github:
 
     git clone https://github.com/WilliamYeh123/short_url.git
@@ -29,7 +29,7 @@ run service:
 
     python main.py
 
-#### Docker Setup (Build Docker Image)
+#### Method 2: Docker Setup (Build Docker Image)
 Clone the project from github:
 
     git clone https://github.com/WilliamYeh123/short_url.git
@@ -47,7 +47,7 @@ but docker compose needs to be installed, base on different version, command may
     # older version:
     docker-compose up -d
 
-#### Docker Setup (Pull from Docker Hub)
+#### Method 3: Docker Setup (Pull from Docker Hub)
 Directly pull the docker image from Docker Hub
 
     docker pull williamyeh0068511/short_url:v1.0

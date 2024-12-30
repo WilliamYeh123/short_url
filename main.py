@@ -1,5 +1,7 @@
 from app.url_function import check_url_validation, generate_short_url
 from flask import Flask, request, redirect, jsonify
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from datetime import datetime, timedelta
 from config.config import BaseConfig
 from deploy.init_db import init_db
@@ -7,7 +9,21 @@ import sqlite3
 
 app = Flask(__name__)
 
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["60 per minute"]
+)
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Rate limit exceeded",
+        "message": "Too many requests. Please try again later."
+    }), 429
+
 @app.route('/url/create', methods=['POST'])
+@limiter.limit("60 per minute")
 def create_url():
     """
     API 1: Create Short URL
@@ -80,6 +96,7 @@ def create_url():
         return jsonify(response_data), 500
 
 @app.route('/<short_url>', methods=['GET'])
+@limiter.limit("60 per minute")
 def redirect_url(short_url):
     """
     API 2: Redirect Using Short URL
@@ -97,7 +114,10 @@ def redirect_url(short_url):
 
     # url not found error
     if not result:
-        return jsonify({'error': 'URL not found'}), 404
+        return jsonify({
+            'error': 'URL not found',
+            'message':'Short URL not found in database.'
+            }), 404
 
     original_url, expire_str = result
 
@@ -106,8 +126,8 @@ def redirect_url(short_url):
         expired_date = datetime.fromtimestamp(expire_str)
         return jsonify({
             'error': 'URL has expired',
-            'expired_at': expired_date
-        }), 410
+            'message': f"URL has expired since {expired_date}"
+            }), 410
 
     return redirect(original_url)
 

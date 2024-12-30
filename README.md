@@ -17,6 +17,7 @@ I chose the first method to implement since it is more simple, other metheds may
 1. Expiration time, default as 30 days.
 2. Status codes and error messgaes for cases like invalid formats or URL not found.
 3. SQLite for data storage, information including original URL, short_url and expiration time.
+4. Implement rate limiting using ``Flask-Limiter``to prevent abuse of the URL shortening service.
 
 
 ## Requirements
@@ -139,6 +140,7 @@ Response message:
 | 400         | Bad request                           |
 | 413         | URL too long \(should be under 2048\) |
 | 422         | Invalid format                        |
+| 429         | Rate limit exceeded                   |
 
 #### Example Usage
 Sample request payload:
@@ -181,6 +183,7 @@ Response message:
 | 200         | Success creating short URL |
 | 404         | URL not found              |
 | 410         | URL has expired            |
+| 429         | Rate limit exceeded        |
 
 #### Example Usage
 Running with Linux:
@@ -210,5 +213,5 @@ Example of expired url:
 
     {
         "error": "URL has expired",
-        "expired_at": "Sun, 27 Oct 2024 09:37:19 GMT"
+        "message": "URL has expired since Sun, 27 Oct 2024 09:37:19 GMT"
     }

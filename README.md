@@ -1,7 +1,23 @@
 # short_url
 
 ## Description
-This is a project implementing two short_url RESTful HTTP APIs, including a **POST** method generating the original URL into a short URL and a **GET** method redirecting the short URL back to the original URL. Other features including short_url expiration time and invalid url format errors are included. Information including original URL, short_url and expiration time are stored in a simple SQLite file.
+This is a project implementing two short_url RESTful HTTP APIs, including a **POST** method generating the original URL into a short URL and a **GET** method redirecting the short URL back to the original URL.
+
+There are a few methods for shortening URLs I've considered:
+
+**Method 1: Random Token**
+Generate a random alphanumeric string as the token. It is easier to implements and not predictable, though it may need a database to store the result, since I also need to store other information like original URL and expire time, this could be the better method.
+
+**Method 2: Hashing**
+Use a hashing algorithm like MD5 or SHA256.
+
+I chose the first method to implement since it is more simple, other metheds may also be done for needs like verification or decoding. I added a checking mechanism for this method to ensure the uniqueness for tokens in the database.
+
+**Other Features:**
+1. Expiration time, default as 30 days.
+2. Status codes and error messgaes for cases like invalid formats or URL not found.
+3. SQLite for data storage, information including original URL, short_url and expiration time.
+
 
 ## Requirements
 * Python 3.9+

@@ -108,12 +108,14 @@ This part introduces how to use the API service, assuming the service is running
 ---
 * `url`: `http://127.0.0.1:5000/url/create`
 * method: `POST`
-* description: Take an URL as input, then returns shortened URL, which is a 20 character token added after the base URL, returns error message if `original_url` is invalid
+* description: Take an URL as input, then returns shortened URL, which is a 20 character token added after the base URL, returns error message if `original_url` is invalid. Token length and expire time are optional inputs.
 
 Request parameter:
-| parameter     | type   | description                          |
-|---------------|--------|--------------------------------------|
-| original\_url | string | the original url you want shortening |
+| parameter     | type    | description                          | required | default |
+|---------------|---------|--------------------------------------|----------|---------|
+| original\_url | string  | the original url you want shortening | required |         |
+| expire        | integer | total days until url expire          | optional | 30      |
+| length        | integer | total length of the generated token  | optional | 20      |
 
 URL rules:
 * total length under 2048

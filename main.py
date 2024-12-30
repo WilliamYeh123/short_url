@@ -29,7 +29,10 @@ def create_url():
             response_data['success'] = False
             response_data['reason'] = "Bad Request: Request body must be a JSON object"
             return jsonify(response_data), 400
+
         original_url = data.get('original_url','')
+        token_len = data.get('length',20)
+        expire = data.get('expire',30)
 
         # check if original_url is in valid format
         status, message, code = check_url_validation(original_url)
@@ -40,7 +43,7 @@ def create_url():
 
         # define create time and expire time
         create_at = datetime.now()
-        expire_at = create_at + timedelta(days=30)
+        expire_at = create_at + timedelta(days=expire)
         create_at = create_at.timestamp()
         expire_at = expire_at.timestamp()
 
@@ -50,7 +53,7 @@ def create_url():
         try:
             while True:
                 # Check if short_url already exists, if not then save in db
-                short = generate_short_url()
+                short = generate_short_url(token_len)
                 existing = c.execute('SELECT short FROM urls WHERE short = ?', (short,)).fetchone()
 
                 if not existing:

@@ -16,16 +16,16 @@ Clone the project from github:
     git clone https://github.com/WilliamYeh123/short_url.git
     cd short_url
 
-create virtual environment(optional):
+Create virtual environment(optional):
 
     python -m venv venv
     source venv/bin/activate
 
-install dependencies:
+Install dependencies:
 
     pip install -r requirements.txt
 
-run service:
+Run service:
 
     python main.py
 
@@ -35,13 +35,41 @@ Clone the project from github:
     git clone https://github.com/WilliamYeh123/short_url.git
     cd short_url
 
-build image using Dockerfile, then run the service:
+Install Docker if not installed, for Linux:
+
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+
+    # Latest version
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+    # Verify
+    sudo docker run hello-world
+
+If using Windows, you can install Docker Desktop on your system, view details and other methods at [Docker][1] official website.
+
+[1]:https://docs.docker.com/engine/install/ubuntu/
+
+
+
+Build image using Dockerfile, then run the service:
 
     docker build -t short_url:v1.0 .
     docker run -d --name url-service -p 5000:5000 short_url:v1.0
 
 or you can choose using docker compose, better if you are adding other services in the future
-but docker compose needs to be installed, base on different version, command may be different
+but docker compose needs to be installed. Base on different version, command may be different
 
     docker compose up -d
     # older version:
@@ -52,7 +80,7 @@ Directly pull the docker image from Docker Hub
 
     docker pull williamyeh0068511/short_url:v1.0
 
-start the service:
+Start the service:
 
     docker run -d --name url-service -p 5000:5000 williamyeh0068511/short_url:v1.0
 
@@ -64,20 +92,20 @@ This part introduces how to use the API service, assuming the service is running
 ---
 * `url`: `http://127.0.0.1:5000/url/create`
 * method: `POST`
-* description: take an URL as input, then returns shortened URL, which is a 20 character token added after the base URL, returns error message if `original_url` is invalid
+* description: Take an URL as input, then returns shortened URL, which is a 20 character token added after the base URL, returns error message if `original_url` is invalid
 
-request parameter:
+Request parameter:
 | parameter     | type   | description                          |
 |---------------|--------|--------------------------------------|
 | original\_url | string | the original url you want shortening |
 
-url rule:
+URL rules:
 * total length under 2048
 * original_url not empty
 * includes domain
 * includes `http://` or `https://`
 
-response parameter:
+Response parameter:
 | parameter        | type      | description                               |
 |------------------|-----------|-------------------------------------------|
 | original\_url    | string    | the original url you want shortening      |
@@ -86,7 +114,7 @@ response parameter:
 | reason           | string    | shows success message or error message    |
 | expiration\_time | timestamp | expiration time, 30 days after created    |
 
-response message:
+Response message:
 | status code | message                               |
 |-------------|---------------------------------------|
 | 200         | Success creating short URL            |
@@ -95,12 +123,12 @@ response message:
 | 422         | Invalid format                        |
 
 #### Example Usage
-sample request payload:
+Sample request payload:
 
     {
         "original_url":"https://www.google.com.tw/?hl=zh_TW"
     }
-sample return data:
+Sample return data:
 
     # success
     {
@@ -116,7 +144,7 @@ sample return data:
         "success": false
     }
 
-running with Linux:
+Running with Linux:
 
     curl --request POST \
      --url http://127.0.0.1:5000/url/create \
@@ -127,9 +155,9 @@ running with Linux:
 ---
 * `url`: `http://127.0.0.1:5000/<string:short_url>`
 * method: `GET`
-* description: send `GET` request with URL returned from the first API, or simply search the URL in the browser, it would redirect to the original URL, returns error message if the short URL expired (30 dyas) or URL wasn't found in database. the database only stores the token, which is the 20 character behind, so it's ok to change ip and port as long as the data isn't removed from the table.
+* description: Send `GET` request with URL returned from the first API, or simply search the URL in the browser, it would redirect to the original URL, returns error message if the short URL expired (30 dyas) or URL wasn't found in database. the database only stores the token, which is the 20 character behind, so it's ok to change ip and port as long as the data isn't removed from the table.
 
-response message:
+Response message:
 | status code | message                    |
 |-------------|----------------------------|
 | 200         | Success creating short URL |
@@ -137,30 +165,30 @@ response message:
 | 410         | URL has expired            |
 
 #### Example Usage
-running with Linux:
+Running with Linux:
 
     curl --request GET \
      --url http://localhost:5000/qMQhNvk4k1zlW0gpoUYa \
      --header 'accept: application/json'
 
-it would show redirecting message:
+It would show redirecting message:
 
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
     <title>Redirecting...</title>
     <h1>Redirecting...</h1>
     <p>You should be redirected automatically to target URL: <a href="https://github.com/scikit-learn/scikit-learn/blob/main/README.rst?plain=1">https://github.com/scikit-learn/scikit-learn/blob/main/README.rst?plain=1</a>. If not click the link.
 
-run in postman:
+Run in postman:
 ![postman result](images/get_result1.PNG)
 
-search in browser:
+Search in browser:
 type short_url in browser
 ![search result1](images/get_result2.PNG)
 
-then redirects to the original website
+Then redirects to the original website
 ![search result2](images/get_result3.PNG)
 
-example of expired url:
+Example of expired url:
 
     {
         "error": "URL has expired",
